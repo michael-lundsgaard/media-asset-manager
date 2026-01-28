@@ -21,8 +21,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\MediaAssetManager.Core\MediaAssetManager.Core.csproj" />
-        <ProjectReference
-            Include="..\MediaAssetManager.Infrastructure\MediaAssetManager.Infrastructure.csproj" />
+        <ProjectReference Include="..\MediaAssetManager.Infrastructure\MediaAssetManager.Infrastructure.csproj" />
         <ProjectReference Include="..\MediaAssetManager.Services\MediaAssetManager.Services.csproj" />
     </ItemGroup>
 

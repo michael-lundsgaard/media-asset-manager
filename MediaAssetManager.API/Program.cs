@@ -17,6 +17,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient(); // For B2 tests
 
+builder.Services.AddScoped<IStorageService, B2StorageService>();
 // Database
 builder.Services.AddDbContext<MediaAssetContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));

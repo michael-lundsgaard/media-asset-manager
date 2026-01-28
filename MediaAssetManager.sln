@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.2.11408.102 d18.0
+VisualStudioVersion = 18.2.11408.102
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaAssetManager.API", "MediaAssetManager.API\MediaAssetManager.API.csproj", "{AB51F281-431A-4A31-8E88-CF9546D3CA37}"
 EndProject
@@ -17,8 +17,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{A1EE9CC8
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{3F834D78-7A14-41E0-B89C-7B816DA30AB3}"
 	ProjectSection(SolutionItems) = preProject
-		CLAUDE.md = CLAUDE.md
-		CONFIGURATION.md = CONFIGURATION.md
 		README.md = README.md
 	EndProjectSection
 EndProject
