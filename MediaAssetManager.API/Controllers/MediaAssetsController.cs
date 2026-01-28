@@ -1,93 +1,66 @@
-﻿using MediaAssetManager.Core.Entities;
-using MediaAssetManager.Infrastructure.Data;
+﻿using MediaAssetManager.API.DTOs;
+using MediaAssetManager.API.DTOs.Common;
+using MediaAssetManager.API.Extensions;
+using MediaAssetManager.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace MediaAssetManager.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Produces("application/json")]
     public class MediaAssetsController : ControllerBase
     {
-        private readonly MediaAssetContext _context;
+        private readonly IMediaAssetService _service;
         private readonly ILogger<MediaAssetsController> _logger;
 
-        public MediaAssetsController(MediaAssetContext context, ILogger<MediaAssetsController> logger)
+        public MediaAssetsController(IMediaAssetService service, ILogger<MediaAssetsController> logger)
         {
-            _context = context;
+            _service = service;
             _logger = logger;
         }
 
-        // GET: api/mediaassets
+        /// <summary>
+        /// Gets a paginated list of media assets based on query parameters
+        /// </summary>
+        /// <param name="dto">Query parameters for filtering, sorting, and pagination</param>
+        /// <returns>Paginated list of media assets</returns>
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        [ProducesResponseType(typeof(PagedResultDto<MediaAssetResponseDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<PagedResultDto<MediaAssetResponseDto>>> Get([FromQuery] MediaAssetQueryDto dto)
         {
-            var assets = await _context.MediaAssets
-                .OrderByDescending(m => m.UploadedAt)
-                .ToListAsync();
-
-            return Ok(new
+            if (!ModelState.IsValid)
             {
-                count = assets.Count,
-                assets
-            });
+                return BadRequest(ModelState);
+            }
+
+            var assets = await _service.GetAsync(dto.ToQuery());
+            return Ok(assets.ToDto());
         }
 
-        // GET: api/mediaassets/5
+        /// <summary>
+        /// Gets a specific media asset by ID
+        /// </summary>
+        /// <param name="id">The media asset ID</param>
+        /// <returns>The media asset details</returns>
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        [ProducesResponseType(typeof(MediaAssetResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<MediaAssetResponseDto>> GetById(int id)
         {
-            var asset = await _context.MediaAssets.FindAsync(id);
+            var asset = await _service.GetByIdAsync(id);
 
             if (asset == null)
-                return NotFound(new { error = "Asset not found" });
-
-            return Ok(asset);
-        }
-
-        // POST: api/mediaassets
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateAssetRequest request)
-        {
-            var asset = new MediaAsset
             {
-                FileName = request.FileName,
-                OriginalFileName = request.OriginalFileName,
-                FileSizeBytes = request.FileSizeBytes,
-                Title = request.Title,
-                UploadedAt = DateTime.UtcNow
-            };
+                return NotFound(new ErrorResponseDto
+                {
+                    Message = $"Media asset with ID {id} not found",
+                    StatusCode = StatusCodes.Status404NotFound
+                });
+            }
 
-            _context.MediaAssets.Add(asset);
-            await _context.SaveChangesAsync();
-
-            _logger.LogInformation("Created asset {AssetId}", asset.AssetId);
-
-            return CreatedAtAction(nameof(GetById), new { id = asset.AssetId }, asset);
-        }
-
-        // DELETE: api/mediaassets/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var asset = await _context.MediaAssets.FindAsync(id);
-
-            if (asset == null)
-                return NotFound(new { error = "Asset not found" });
-
-            _context.MediaAssets.Remove(asset);
-            await _context.SaveChangesAsync();
-
-            _logger.LogInformation("Deleted asset {AssetId}", id);
-
-            return NoContent();
+            return Ok(asset.ToDto());
         }
     }
-
-    public record CreateAssetRequest(
-        string FileName,
-        string OriginalFileName,
-        long FileSizeBytes,
-        string? Title
-    );
 }

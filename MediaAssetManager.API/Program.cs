@@ -1,4 +1,8 @@
+using MediaAssetManager.Core.Interfaces;
 using MediaAssetManager.Infrastructure.Data;
+using MediaAssetManager.Infrastructure.Repositories;
+using MediaAssetManager.Services;
+using MediaAssetManager.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -17,7 +21,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient(); // For B2 tests
 
+// Register Repositories (Infrastructure Layer)
+builder.Services.AddScoped<IMediaAssetRepository, MediaAssetRepository>();
+
+// Register Services (Service Layer)
 builder.Services.AddScoped<IStorageService, B2StorageService>();
+builder.Services.AddScoped<IMediaAssetService, MediaAssetService>();
+
 // Database
 builder.Services.AddDbContext<MediaAssetContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));

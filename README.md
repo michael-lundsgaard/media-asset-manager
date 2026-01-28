@@ -1,35 +1,53 @@
 ﻿# Media Asset Manager
 
-A .NET 8 Web API for managing video clips with cloud storage integration.
+A .NET 8 Web API for managing media assets with cloud storage integration.
 
 ## Overview
 
-Media Asset Manager provides a RESTful API to organize, store, and retrieve gaming content. Upload your clips to Backblaze B2 cloud storage while maintaining rich metadata in a PostgreSQL database.
+Media Asset Manager provides a RESTful API to organize, store, and retrieve media content. Built with clean architecture principles, it separates concerns across distinct layers while integrating with Backblaze B2 for cloud storage and PostgreSQL for metadata management.
 
 ## Features
 
-- **Upload & Store** - Upload media to Backblaze B2 cloud storage
-- **Metadata Management** - Store and query media metadata in PostgreSQL
-- **Clean Architecture** - Well-organized codebase with clear separation of concerns
-- **Secure Configuration** - User secrets and environment variable support
-- **Cloud-Ready** - Integrates with Supabase (PostgreSQL) and Backblaze B2
+- RESTful API for media asset management
+- Cloud storage integration (Backblaze B2)
+- PostgreSQL database with Entity Framework Core
+- Query filtering, sorting, and pagination
+- Clean architecture with proper layer separation
+- Response DTOs to protect domain model
+- Structured logging with Serilog
+- OpenAPI/Swagger documentation
 
-## Tech Stack
+## Architecture
 
-- **.NET 8** - Latest LTS version of .NET
-- **ASP.NET Core Web API** - RESTful API framework
-- **Entity Framework Core** - ORM for database access
-- **PostgreSQL** - Primary database (hosted on Supabase)
-- **Backblaze B2** - Cloud object storage for media files
-
-## Project Structure
+The solution follows clean architecture principles with clear separation of concerns:
 
 ```
 MediaAssetManager/
-├── MediaAssetManager.Core/           # Domain entities and interfaces
-├── MediaAssetManager.Infrastructure/ # Data access and EF Core
-├── MediaAssetManager.Services/       # Business logic & external services
-├── MediaAssetManager.API/            # API controllers and configuration
-└── docs/                             # Documentation
-    └── CONFIGURATION.md              # Setup and configuration guide
+├── MediaAssetManager.API/            # Presentation layer (Controllers, DTOs)
+├── MediaAssetManager.Services/       # Application layer (Business logic)
+├── MediaAssetManager.Core/           # Domain layer (Entities, Interfaces)
+└── MediaAssetManager.Infrastructure/ # Data access layer (Repositories, EF Core)
 ```
+
+**Dependency Flow:** API → Services → Core ← Infrastructure
+
+## Tech Stack
+
+- .NET 8 (LTS)
+- ASP.NET Core Web API
+- Entity Framework Core 8
+- PostgreSQL with Npgsql
+- Serilog for structured logging
+- Backblaze B2 (S3-compatible storage)
+- AWS SDK for S3
+
+## Development Status
+
+This project is in active development. See [docs/TODO.md](docs/TODO.md) for planned improvements and future features.
+
+## API Endpoints
+
+- `GET /api/mediaassets` - List media assets (with filtering, sorting, pagination)
+- `GET /api/mediaassets/{id}` - Get specific media asset
+
+More endpoints coming soon.

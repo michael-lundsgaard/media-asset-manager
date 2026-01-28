@@ -16,17 +16,44 @@ namespace MediaAssetManager.Infrastructure.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            // Apply snake_case naming convention for PostgreSQL
+            foreach (var entity in modelBuilder.Model.GetEntityTypes())
+            {
+                // Table names to snake_case
+                var tableName = entity.GetTableName();
+                if (tableName != null)
+                {
+                    entity.SetTableName(tableName.ToSnakeCase());
+                }
+
+                // Column names to snake_case
+                foreach (var property in entity.GetProperties())
+                {
+                    var columnName = property.GetColumnName();
+                    property.SetColumnName(columnName.ToSnakeCase());
+                }
+            }
+
+
             modelBuilder.Entity<MediaAsset>(entity =>
             {
-                entity.ToTable("media_assets");
                 entity.HasKey(e => e.AssetId);
-                entity.Property(e => e.AssetId).HasColumnName("asset_id");
-                entity.Property(e => e.FileName).HasColumnName("file_name");
-                entity.Property(e => e.OriginalFileName).HasColumnName("original_file_name");
-                entity.Property(e => e.FileSizeBytes).HasColumnName("file_size_bytes");
-                entity.Property(e => e.Title).HasColumnName("title");
-                entity.Property(e => e.UploadedAt).HasColumnName("uploaded_at");
             });
+        }
+    }
+
+    // Extension for snake_case conversion
+    public static class StringExtensions
+    {
+        public static string ToSnakeCase(this string input)
+        {
+            if (string.IsNullOrEmpty(input)) return input;
+
+            return string.Concat(
+                input.Select((x, i) => i > 0 && char.IsUpper(x)
+                    ? "_" + x.ToString().ToLower()
+                    : x.ToString().ToLower())
+            );
         }
     }
 }

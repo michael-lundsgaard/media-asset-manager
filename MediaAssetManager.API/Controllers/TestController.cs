@@ -1,9 +1,7 @@
 ﻿using MediaAssetManager.Infrastructure.Data;
+using MediaAssetManager.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
 
 namespace MediaAssetManager.API.Controllers
 {
@@ -14,14 +12,14 @@ namespace MediaAssetManager.API.Controllers
         private readonly IConfiguration _configuration;
         private readonly ILogger<TestController> _logger;
         private readonly MediaAssetContext _context;
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IStorageService _storageService;
 
-        public TestController(IConfiguration configuration, ILogger<TestController> logger, MediaAssetContext context, IHttpClientFactory httpClientFactory)
+        public TestController(IConfiguration configuration, ILogger<TestController> logger, MediaAssetContext context, IStorageService storageService)
         {
             _configuration = configuration;
             _logger = logger;
             _context = context;
-            _httpClientFactory = httpClientFactory;
+            _storageService = storageService;
         }
 
         [HttpGet("health")]
@@ -68,52 +66,6 @@ namespace MediaAssetManager.API.Controllers
             }
         }
 
-        [HttpGet("b2")]
-        public async Task<IActionResult> TestB2()
-        {
-            try
-            {
-                var accountId = _configuration["B2:AccountId"];
-                var applicationKey = _configuration["B2:ApplicationKey"];
-                var bucketName = _configuration["B2:BucketName"];
-
-                // Test B2 authorization
-                var authString = Convert.ToBase64String(
-                    Encoding.UTF8.GetBytes($"{accountId}:{applicationKey}")
-                );
-
-                var client = _httpClientFactory.CreateClient();
-                var request = new HttpRequestMessage(HttpMethod.Get,
-                    "https://api.backblazeb2.com/b2api/v2/b2_authorize_account");
-                request.Headers.Authorization = new AuthenticationHeaderValue("Basic", authString);
-
-                var response = await client.SendAsync(request);
-                response.EnsureSuccessStatusCode();
-
-                var json = await response.Content.ReadAsStringAsync();
-                var authResponse = JsonSerializer.Deserialize<JsonElement>(json);
-
-                _logger.LogInformation("B2 authorization successful");
-
-                return Ok(new
-                {
-                    status = "connected",
-                    service = "Backblaze B2",
-                    bucketName = bucketName,
-                    accountId = accountId
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "B2 connection failed");
-                return StatusCode(500, new
-                {
-                    status = "failed",
-                    error = ex.Message
-                });
-            }
-        }
-
         [HttpGet("connection-info")]
         public IActionResult GetConnectionInfo()
         {
@@ -132,6 +84,41 @@ namespace MediaAssetManager.API.Controllers
                 hasPassword = !string.IsNullOrEmpty(builder.Password),
                 fullConnectionString = connectionString?.Replace(builder.Password ?? "", "***HIDDEN***")
             });
+        }
+
+        [HttpPost("upload")]
+        public async Task<IActionResult> Upload([FromForm] UploadMediaRequest req)
+        {
+            try
+            {
+                if (req.File == null || req.File.Length == 0)
+                {
+                    return BadRequest(new { error = "No file uploaded" });
+                }
+
+                _logger.LogInformation("Uploading file: {FileName} ({Size} bytes)", req.File.FileName, req.File.Length);
+
+                using var stream = req.File.OpenReadStream();
+                var result = await _storageService.UploadFileAsync(stream, req.File.FileName, req.File.ContentType);
+
+                _logger.LogInformation(
+                    "Uploading file: {FileName} ({Size} bytes)",
+                    req.File.FileName,
+                    req.File.Length
+                );
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "File upload failed");
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }
+
+        public class UploadMediaRequest
+        {
+            public IFormFile File { get; set; } = null!;
         }
     }
 }
