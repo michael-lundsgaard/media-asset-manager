@@ -5,6 +5,9 @@ namespace MediaAssetManager.Infrastructure.Extensions
 {
     public static class MediaAssetQueryExtensions
     {
+        /// <summary>
+        /// Applies filtering based on the provided MediaAssetQuery.
+        /// </summary>
         public static IQueryable<MediaAsset> ApplyFilters(
             this IQueryable<MediaAsset> source,
             MediaAssetQuery query)
@@ -30,6 +33,9 @@ namespace MediaAssetManager.Infrastructure.Extensions
             return source;
         }
 
+        /// <summary>
+        /// Applies sorting based on the provided MediaAssetQuery.
+        /// </summary>
         public static IQueryable<MediaAsset> ApplySorting(
             this IQueryable<MediaAsset> source,
             MediaAssetQuery query)
@@ -58,13 +64,16 @@ namespace MediaAssetManager.Infrastructure.Extensions
             };
         }
 
+        /// <summary>
+        /// Applies paging based on the provided MediaAssetQuery.
+        /// </summary>
         public static IQueryable<MediaAsset> ApplyPaging(
             this IQueryable<MediaAsset> source,
             MediaAssetQuery query)
         {
             return source
-                .Skip(query.Skip)
-                .Take(query.Take);
+                .Skip((query.PageNumber - 1) * query.PageSize)
+                .Take(query.PageSize);
         }
     }
 

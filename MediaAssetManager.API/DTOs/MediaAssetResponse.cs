@@ -3,7 +3,7 @@ namespace MediaAssetManager.API.DTOs
     /// <summary>
     /// Response DTO for media asset information
     /// </summary>
-    public class MediaAssetResponseDto
+    public class MediaAssetResponse
     {
         public int AssetId { get; set; }
         public string FileName { get; set; } = string.Empty;

@@ -4,9 +4,10 @@ using System.ComponentModel.DataAnnotations;
 namespace MediaAssetManager.API.DTOs
 {
     /// <summary>
-    /// DTO for querying media assets with filtering, sorting, and pagination options.
+    /// API request model for querying media assets with filtering, sorting, and pagination options.
+    /// Contains API-specific validation and maps to Core.Queries.MediaAssetQuery.
     /// </summary>
-    public class MediaAssetQueryDto
+    public class MediaAssetQueryRequest
     {
         public string? FileName { get; set; }
         public string? Title { get; set; }
@@ -18,9 +19,10 @@ namespace MediaAssetManager.API.DTOs
         public MediaAssetSortBy SortBy { get; set; } = MediaAssetSortBy.UploadedAt;
         public bool SortDescending { get; set; } = true;
 
-        [Range(0, int.MaxValue)]
-        public int Skip { get; set; } = 0;
-        [Range(1, 1_000)] // Prevent excessive page sizes
-        public int Take { get; set; } = 50;
+        [Range(1, int.MaxValue)]
+        public int Page { get; set; } = 1;
+
+        [Range(1, 1_000)]
+        public int PageSize { get; set; } = 20;
     }
 }

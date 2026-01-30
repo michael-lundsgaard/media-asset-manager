@@ -9,9 +9,9 @@ namespace MediaAssetManager.API.Extensions
     public static class MediaAssetMappingExtensions
     {
         /// <summary>
-        /// Converts MediaAssetQueryDto to MediaAssetQuery domain object
+        /// Converts MediaAssetQueryRequest DTO to MediaAssetQuery.
         /// </summary>
-        public static MediaAssetQuery ToQuery(this MediaAssetQueryDto dto)
+        public static MediaAssetQuery ToQuery(this MediaAssetQueryRequest dto)
         {
             return new MediaAssetQuery
             {
@@ -23,17 +23,17 @@ namespace MediaAssetManager.API.Extensions
                 UploadedBefore = dto.UploadedBefore,
                 SortBy = dto.SortBy,
                 SortDescending = dto.SortDescending,
-                Skip = dto.Skip,
-                Take = dto.Take
+                PageNumber = dto.Page,
+                PageSize = dto.PageSize
             };
         }
 
         /// <summary>
-        /// Converts MediaAsset entity to MediaAssetResponseDto
+        /// Converts MediaAsset entity to MediaAssetResponse DTO.
         /// </summary>
-        public static MediaAssetResponseDto ToDto(this MediaAsset entity)
+        public static MediaAssetResponse ToResponse(this MediaAsset entity)
         {
-            return new MediaAssetResponseDto
+            return new MediaAssetResponse
             {
                 AssetId = entity.AssetId,
                 FileName = entity.FileName,
@@ -45,16 +45,17 @@ namespace MediaAssetManager.API.Extensions
         }
 
         /// <summary>
-        /// Converts PagedResult of MediaAsset entities to PagedResultDto of MediaAssetResponseDto
+        /// Converts PagedResult of MediaAsset entities to PaginatedResponse of MediaAssetResponse DTOs.
         /// </summary>
-        public static PagedResultDto<MediaAssetResponseDto> ToDto(this PagedResult<MediaAsset> pagedResult)
+        public static PaginatedResponse<MediaAssetResponse> ToPaginatedResponse(this PagedResult<MediaAsset> pagedResult)
         {
-            return new PagedResultDto<MediaAssetResponseDto>
+            return new PaginatedResponse<MediaAssetResponse>
             {
-                Items = pagedResult.Items.Select(x => x.ToDto()).ToList(),
+                Items = pagedResult.Items.Select(x => x.ToResponse()).ToList(),
                 TotalCount = pagedResult.TotalCount,
-                Skip = pagedResult.Skip,
-                Take = pagedResult.Take
+                Page = pagedResult.PageNumber,
+                PageSize = pagedResult.PageSize,
+                TotalPages = (int)Math.Ceiling(pagedResult.TotalCount / (double)pagedResult.PageSize),
             };
         }
     }

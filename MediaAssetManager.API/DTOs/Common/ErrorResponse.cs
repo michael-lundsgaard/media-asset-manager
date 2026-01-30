@@ -1,13 +1,13 @@
 namespace MediaAssetManager.API.DTOs.Common
 {
     /// <summary>
-    /// Standard error response structure
+    /// Standard API error response model
     /// </summary>
-    public class ErrorResponseDto
+    public class ErrorResponse
     {
-        public string Message { get; set; } = string.Empty;
+        public required string Message { get; set; }
         public string? Details { get; set; }
-        public int StatusCode { get; set; }
+        public required int StatusCode { get; set; }
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;
     }
 }

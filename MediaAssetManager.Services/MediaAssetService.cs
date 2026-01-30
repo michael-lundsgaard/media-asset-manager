@@ -3,27 +3,21 @@ using MediaAssetManager.Core.Entities;
 using MediaAssetManager.Core.Interfaces;
 using MediaAssetManager.Core.Queries;
 using MediaAssetManager.Services.Interfaces;
-using Microsoft.Extensions.Logging;
 
 namespace MediaAssetManager.Services
 {
-    public class MediaAssetService : IMediaAssetService
+    public class MediaAssetService(IMediaAssetRepository repository) : IMediaAssetService
     {
-        private readonly IMediaAssetRepository _repository;
-
-        public MediaAssetService(IMediaAssetRepository repository)
-        {
-            _repository = repository;
-        }
-
+        /// <inheritdoc/>
         public Task<PagedResult<MediaAsset>> GetAsync(MediaAssetQuery query)
         {
-            return _repository.GetAsync(query);
+            return repository.GetAsync(query);
         }
 
+        /// <inheritdoc/>
         public Task<MediaAsset?> GetByIdAsync(int id)
         {
-            return _repository.GetByIdAsync(id);
+            return repository.GetByIdAsync(id);
         }
     }
 }

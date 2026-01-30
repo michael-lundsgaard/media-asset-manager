@@ -1,11 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MediaAssetManager.Core.Queries
+﻿namespace MediaAssetManager.Core.Queries
 {
+    /// <summary>
+    /// Represents a set of criteria for querying media assets, 
+    /// including filters, sorting options, and pagination settings.
+    /// </summary>
+    /// <remarks>
+    /// Use this class to specify search parameters when retrieving media assets from a data source.
+    /// Set the desired properties to filter results by file name, title, file size, upload date, and to control sorting
+    /// and paging behavior. All filter properties are optional; only set the properties relevant to your
+    /// query.
+    /// </remarks>
     public class MediaAssetQuery
     {
         public string? FileName { get; set; }
@@ -18,7 +22,7 @@ namespace MediaAssetManager.Core.Queries
         public MediaAssetSortBy SortBy { get; set; } = MediaAssetSortBy.UploadedAt;
         public bool SortDescending { get; set; } = true;
 
-        public int Skip { get; set; } = 0;
-        public int Take { get; set; } = 50;
+        public int PageNumber { get; set; } = 1;
+        public int PageSize { get; set; } = 20;
     }
 }

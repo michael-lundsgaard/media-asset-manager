@@ -60,6 +60,25 @@ Add middleware to catch and handle unhandled exceptions consistently across the 
 - Create custom health checks for external dependencies
 - Expose `/health` endpoint with detailed status
 
+### HATEOAS Links
+Implement Hypermedia links in `PaginatedResponse<T>` for better API discoverability.
+
+**Current State:**
+- `PaginationLinks` class exists but is not integrated into `PaginatedResponse<T>`
+- Links would provide navigation URLs (self, first, previous, next, last)
+
+**Implementation:**
+- Add `Links` property to `PaginatedResponse<T>`
+- Generate URLs based on current request context
+- Include links for: self, first, previous (if not first page), next (if not last page), last
+- Improves REST API maturity level (Richardson Maturity Model Level 3)
+
+**Benefits:**
+- Better API discoverability
+- Clients can navigate without building URLs
+- Follows REST best practices
+- Self-documenting API
+
 ### API Versioning
 Implement versioning strategy for API endpoints.
 

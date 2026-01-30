@@ -8,35 +8,31 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MediaAssetManager.Infrastructure.Repositories
 {
-    public class MediaAssetRepository : IMediaAssetRepository
+    public class MediaAssetRepository(MediaAssetContext context) : IMediaAssetRepository
     {
-        private readonly MediaAssetContext _context;
-
-        public MediaAssetRepository(MediaAssetContext context)
-        {
-            _context = context;
-        }
-
+        /// <inheritdoc/>
         public async Task<MediaAsset> AddAsync(MediaAsset asset)
         {
-            _context.MediaAssets.Add(asset);
-            await _context.SaveChangesAsync();
+            context.MediaAssets.Add(asset);
+            await context.SaveChangesAsync();
             return asset;
         }
 
+        /// <inheritdoc/>
         public async Task<bool> DeleteAsync(int id)
         {
-            var entity = await _context.MediaAssets.FindAsync(id);
+            var entity = await context.MediaAssets.FindAsync(id);
             if (entity == null) return false;
 
-            _context.MediaAssets.Remove(entity);
-            await _context.SaveChangesAsync();
+            context.MediaAssets.Remove(entity);
+            await context.SaveChangesAsync();
             return true;
         }
 
+        /// <inheritdoc/>
         public async Task<PagedResult<MediaAsset>> GetAsync(MediaAssetQuery query)
         {
-            var baseQuery = _context.MediaAssets
+            var baseQuery = context.MediaAssets
                 .AsNoTracking()
                 .ApplyFilters(query);
 
@@ -50,22 +46,24 @@ namespace MediaAssetManager.Infrastructure.Repositories
             return new PagedResult<MediaAsset>(
                 items,
                 totalCount,
-                query.Skip,
-                query.Take);
+                query.PageNumber,
+                query.PageSize);
         }
 
+        /// <inheritdoc/>
         public async Task<MediaAsset?> GetByIdAsync(int id)
         {
-            return await _context.MediaAssets.FindAsync(id);
+            return await context.MediaAssets.FindAsync(id);
         }
 
+        /// <inheritdoc/>
         public async Task<MediaAsset?> UpdateAsync(MediaAsset asset)
         {
-            if (!await _context.MediaAssets.AnyAsync(x => x.AssetId == asset.AssetId))
+            if (!await context.MediaAssets.AnyAsync(x => x.AssetId == asset.AssetId))
                 return null;
 
-            _context.MediaAssets.Update(asset);
-            await _context.SaveChangesAsync();
+            context.MediaAssets.Update(asset);
+            await context.SaveChangesAsync();
             return asset;
         }
     }

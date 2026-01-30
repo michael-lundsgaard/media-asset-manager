@@ -9,58 +9,56 @@ namespace MediaAssetManager.API.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]
-    public class MediaAssetsController : ControllerBase
+    public class MediaAssetsController(IMediaAssetService service) : ControllerBase
     {
-        private readonly IMediaAssetService _service;
-        private readonly ILogger<MediaAssetsController> _logger;
-
-        public MediaAssetsController(IMediaAssetService service, ILogger<MediaAssetsController> logger)
-        {
-            _service = service;
-            _logger = logger;
-        }
 
         /// <summary>
-        /// Gets a paginated list of media assets based on query parameters
+        /// Retrieves a paginated list of media assets that match the specified query parameters.
         /// </summary>
-        /// <param name="dto">Query parameters for filtering, sorting, and pagination</param>
-        /// <returns>Paginated list of media assets</returns>
+        /// <param name="query">
+        /// The query parameters used to filter, sort, and paginate the list of media assets. Cannot be null.
+        /// </param>
+        /// <returns>
+        /// An <see cref="ActionResult{T}"/> containing a <see cref="PaginatedResponse{MediaAssetResponse}"/> with the
+        /// matching media assets and pagination details if the request is valid; otherwise, an <see cref="ErrorResponse"/> describing the validation errors.
+        /// </returns>
         [HttpGet]
-        [ProducesResponseType(typeof(PagedResultDto<MediaAssetResponseDto>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<PagedResultDto<MediaAssetResponseDto>>> Get([FromQuery] MediaAssetQueryDto dto)
+        [ProducesResponseType(typeof(PaginatedResponse<MediaAssetResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<PaginatedResponse<MediaAssetResponse>>> Get([FromQuery] MediaAssetQueryRequest query)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            var pagedResult = await service.GetAsync(query.ToQuery());
+            var response = pagedResult.ToPaginatedResponse();
 
-            var assets = await _service.GetAsync(dto.ToQuery());
-            return Ok(assets.ToDto());
+            return Ok(response);
         }
 
         /// <summary>
-        /// Gets a specific media asset by ID
+        /// Retrieves a specific media asset by its unique ID.
         /// </summary>
-        /// <param name="id">The media asset ID</param>
-        /// <returns>The media asset details</returns>
+        /// <param name="id">
+        /// The unique identifier of the media asset to retrieve.
+        /// </param>
+        /// <returns>
+        /// An <see cref="ActionResult{T}"/> containing the <see cref="MediaAssetResponse"/> if found;
+        /// </returns>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(MediaAssetResponseDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<MediaAssetResponseDto>> GetById(int id)
+        [ProducesResponseType(typeof(MediaAssetResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<MediaAssetResponse>> GetById(int id)
         {
-            var asset = await _service.GetByIdAsync(id);
+            var asset = await service.GetByIdAsync(id);
 
             if (asset == null)
             {
-                return NotFound(new ErrorResponseDto
+                return NotFound(new ErrorResponse
                 {
                     Message = $"Media asset with ID {id} not found",
                     StatusCode = StatusCodes.Status404NotFound
                 });
             }
 
-            return Ok(asset.ToDto());
+            return Ok(asset.ToResponse());
         }
     }
 }
