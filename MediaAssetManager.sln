@@ -19,6 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{3F834D78-7
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
 		docs\TODO.md = docs\TODO.md
+        docs\IMPLEMENTATION_GUIDE.md = docs\IMPLEMENTATION_GUIDE.md
+        docs\IMPLEMENTATION_GUIDE_V2.md = docs\IMPLEMENTATION_GUIDE_V2.md
 	EndProjectSection
 EndProject
 Global

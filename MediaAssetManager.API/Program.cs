@@ -1,40 +1,37 @@
-using MediaAssetManager.Core.Interfaces;
-using MediaAssetManager.Infrastructure.Data;
-using MediaAssetManager.Infrastructure.Repositories;
-using MediaAssetManager.Services;
-using MediaAssetManager.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using MediaAssetManager.API.Configuration;
+using MediaAssetManager.Services.Configuration;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure Serilog
+// === LOGGING ===
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .CreateLogger();
 
 builder.Host.UseSerilog();
 
-// Add services
+// === OPTIONS PATTERN (Strongly-typed configuration) ===
+builder.Services.Configure<B2StorageOptions>(
+    builder.Configuration.GetSection(B2StorageOptions.SectionName));
+
+builder.Services.Configure<JwtOptions>(
+    builder.Configuration.GetSection(JwtOptions.SectionName));
+
+// === ASP.NET CORE SERVICES ===
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddHttpClient(); // For B2 tests
 
-// Register Repositories (Infrastructure Layer)
-builder.Services.AddScoped<IMediaAssetRepository, MediaAssetRepository>();
-
-// Register Services (Service Layer)
-builder.Services.AddScoped<IStorageService, B2StorageService>();
-builder.Services.AddScoped<IMediaAssetService, MediaAssetService>();
-
-// Database
-builder.Services.AddDbContext<MediaAssetContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+// === APPLICATION SERVICES (Clean extension methods) ===
+builder.Services.AddDatabase(builder.Configuration);
+builder.Services.AddRepositories();
+builder.Services.AddApplicationServices();
+builder.Services.AddHttpClients();
 
 var app = builder.Build();
 
-// Configure pipeline
+// === MIDDLEWARE PIPELINE ===
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -44,12 +41,5 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.MapControllers();
 
-// Simple health check
-app.MapGet("/health", () => Results.Ok(new
-{
-    status = "healthy",
-    timestamp = DateTime.UtcNow
-}));
-
-Log.Information("Starting Media Asset Manager API");
+Log.Information("Media Asset Manager API started successfully");
 app.Run();
