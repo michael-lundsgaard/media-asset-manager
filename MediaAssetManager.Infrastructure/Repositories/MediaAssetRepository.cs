@@ -15,26 +15,22 @@ namespace MediaAssetManager.Infrastructure.Repositories
     public class MediaAssetRepository(MediaAssetContext context) : IMediaAssetRepository
     {
         /// <inheritdoc/>
-        public async Task<MediaAsset?> GetByIdAsync(int id, bool includeRelated = false)
+        public async Task<MediaAsset?> GetByIdAsync(int id, HashSet<string>? expand = null)
         {
             var query = context.MediaAssets.AsNoTracking();
 
-            // Only include related entities if explicitly requested
-            if (includeRelated)
-                query = IncludeRelatedEntities(query);
-
+            // Apply conditional includes based on expand parameter
+            query = ApplyExpands(query, expand);
             return await query.FirstOrDefaultAsync(a => a.AssetId == id);
         }
 
         /// <inheritdoc/>
-        public async Task<PagedResult<MediaAsset>> GetAsync(MediaAssetQuery query, bool includeRelated = false)
+        public async Task<PagedResult<MediaAsset>> GetAsync(MediaAssetQuery query)
         {
             var queryable = context.MediaAssets.AsNoTracking();
 
-            // Only include related entities if explicitly requested
-            if (includeRelated)
-                queryable = IncludeRelatedEntities(queryable);
-
+            // Apply conditional includes based on query.Expand
+            queryable = ApplyExpands(queryable, query.Expand);
             // Start with base queryable
             queryable = queryable
                 .ApplyFilters(query); // Applies WHERE clauses
@@ -107,14 +103,13 @@ namespace MediaAssetManager.Infrastructure.Repositories
         }
 
         /// <inheritdoc/>
-        public async Task<MediaAsset?> GetByContentHashAsync(string contentHash, bool includeRelated = false)
+        public async Task<MediaAsset?> GetByContentHashAsync(string contentHash, HashSet<string>? expand = null)
         {
             // For duplicate detection during upload
             var query = context.MediaAssets.AsNoTracking();
 
-            if (includeRelated)
-                query = IncludeRelatedEntities(query);
-
+            // Apply conditional includes based on expand parameter
+            query = ApplyExpands(query, expand);
             return await query.FirstOrDefaultAsync(a => a.ContentHash == contentHash);
         }
 
@@ -130,12 +125,26 @@ namespace MediaAssetManager.Infrastructure.Repositories
 
         }
 
-        // Convenience method to include related entities when requested
-        private static IQueryable<MediaAsset> IncludeRelatedEntities(IQueryable<MediaAsset> query)
+        /// <summary>
+        /// Applies conditional eager loading of navigation properties based on expand parameter.
+        /// Always includes Views collection for ViewCount calculation.
+        /// </summary>
+        private static IQueryable<MediaAsset> ApplyExpands(IQueryable<MediaAsset> query, HashSet<string>? expand)
         {
-            return query
-                .Include(a => a.User)
-                .Include(a => a.VideoMetadata);
+            // Always include Views for count calculation (lightweight, no navigation properties loaded)
+            query = query.Include(a => a.Views);
+
+            if (expand == null)
+                return query;
+
+            // Conditionally include navigation properties based on expand values (case-insensitive)
+            if (expand.Contains("user", StringComparer.OrdinalIgnoreCase))
+                query = query.Include(a => a.User);
+
+            if (expand.Contains("videoMetadata", StringComparer.OrdinalIgnoreCase))
+                query = query.Include(a => a.VideoMetadata);
+
+            return query;
         }
     }
 }

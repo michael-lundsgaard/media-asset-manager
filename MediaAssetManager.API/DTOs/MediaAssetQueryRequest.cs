@@ -1,4 +1,5 @@
-﻿using MediaAssetManager.Core.Queries;
+﻿using MediaAssetManager.API.Validation;
+using MediaAssetManager.Core.Queries;
 using System.ComponentModel.DataAnnotations;
 
 namespace MediaAssetManager.API.DTOs
@@ -24,5 +25,13 @@ namespace MediaAssetManager.API.DTOs
 
         [Range(1, 1_000)]
         public int PageSize { get; set; } = 20;
+
+        /// <summary>
+        /// Comma-separated list of navigation properties to include in the response.
+        /// Supported values: "user", "videoMetadata"
+        /// Example: ?expand=user,videoMetadata
+        /// </summary>
+        [AllowedExpandValues("user", "videoMetadata")]
+        public string[]? Expand { get; set; }
     }
 }

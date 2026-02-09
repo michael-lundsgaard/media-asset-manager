@@ -27,8 +27,9 @@ namespace MediaAssetManager.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<PaginatedResponse<MediaAssetResponse>>> Get([FromQuery] MediaAssetQueryRequest query)
         {
-            var pagedResult = await service.GetAsync(query.ToQuery());
-            var response = pagedResult.ToPaginatedResponse();
+            var coreQuery = query.ToQuery();
+            var pagedResult = await service.GetAsync(coreQuery);
+            var response = pagedResult.ToPaginatedResponse(coreQuery.Expand);
 
             return Ok(response);
         }
@@ -39,15 +40,19 @@ namespace MediaAssetManager.API.Controllers
         /// <param name="id">
         /// The unique identifier of the media asset to retrieve.
         /// </param>
+        /// <param name="expand">
+        /// Optional comma-separated list of navigation properties to include (e.g., "user,videoMetadata").
+        /// </param>
         /// <returns>
         /// An <see cref="ActionResult{T}"/> containing the <see cref="MediaAssetResponse"/> if found;
         /// </returns>
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(MediaAssetResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<MediaAssetResponse>> GetById(int id)
+        public async Task<ActionResult<MediaAssetResponse>> GetById(int id, [FromQuery] string[]? expand = null)
         {
-            var asset = await service.GetByIdAsync(id);
+            var expandSet = expand?.ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var asset = await service.GetByIdAsync(id, expandSet);
 
             if (asset == null)
             {
@@ -58,7 +63,7 @@ namespace MediaAssetManager.API.Controllers
                 });
             }
 
-            return Ok(asset.ToResponse());
+            return Ok(asset.ToResponse(expandSet));
         }
     }
 }

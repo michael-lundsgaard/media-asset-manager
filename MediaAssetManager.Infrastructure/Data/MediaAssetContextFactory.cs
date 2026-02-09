@@ -36,7 +36,8 @@ namespace MediaAssetManager.Infrastructure.Data
             }
 
             var optionsBuilder = new DbContextOptionsBuilder<MediaAssetContext>();
-            optionsBuilder.UseNpgsql(connectionString);
+            optionsBuilder.UseNpgsql(connectionString)
+                          .UseSnakeCaseNamingConvention();
 
             return new MediaAssetContext(optionsBuilder.Options);
         }

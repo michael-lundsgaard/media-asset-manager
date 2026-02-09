@@ -13,16 +13,15 @@ namespace MediaAssetManager.Core.Interfaces
         /// Retrieves a media asset by its unique identifier.
         /// </summary>
         /// <param name="id">The unique identifier of the media asset.</param>
-        /// <param name="includeRelated">Whether to include related entities (user, video metadata). Default is false for performance.</param>
+        /// <param name="expand">Optional set of navigation properties to eagerly load (e.g., "user", "videoMetadata").</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the media asset if found; otherwise, null.</returns>
-        Task<MediaAsset?> GetByIdAsync(int id, bool includeRelated = false);
+        Task<MediaAsset?> GetByIdAsync(int id, HashSet<string>? expand = null);
 
         /// <summary>
         /// Retrieves a paged list of media assets based on the specified query criteria.
         /// </summary>
-        /// <param name="query">The query criteria for filtering, sorting, and pagination.</param>
-        /// <param name="includeRelated">Whether to include related entities (user, video metadata). Default is false for performance.</param>
-        Task<PagedResult<MediaAsset>> GetAsync(MediaAssetQuery query, bool includeRelated = false);
+        /// <param name="query">The query criteria for filtering, sorting, and pagination. Includes Expand property for conditional navigation property loading.</param>
+        Task<PagedResult<MediaAsset>> GetAsync(MediaAssetQuery query);
 
         /// <summary>
         /// Adds a new media asset to the repository.
@@ -49,9 +48,9 @@ namespace MediaAssetManager.Core.Interfaces
         /// Finds a media asset by its content hash (for duplicate detection).
         /// </summary>
         /// <param name="contentHash">The SHA256 hash of the file content.</param>
-        /// <param name="includeRelated">Whether to include related entities (user, video metadata). Default is false for performance.</param>
+        /// <param name="expand">Optional set of navigation properties to eagerly load (e.g., "user", "videoMetadata").</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the media asset if found; otherwise, null.</returns>
-        Task<MediaAsset?> GetByContentHashAsync(string contentHash, bool includeRelated = false);
+        Task<MediaAsset?> GetByContentHashAsync(string contentHash, HashSet<string>? expand = null);
 
         /// <summary>
         /// Increments the view count for a media asset.

@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using MediaAssetManager.API.Configuration;
 using MediaAssetManager.Services.Configuration;
 using Serilog;
@@ -19,7 +20,14 @@ builder.Services.Configure<JwtOptions>(
     builder.Configuration.GetSection(JwtOptions.SectionName));
 
 // === ASP.NET CORE SERVICES ===
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Prevent circular reference errors in JSON serialization
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        // Don't serialize null values to reduce payload size
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

@@ -1,11 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using MediaAssetManager.Core.Common;
 using MediaAssetManager.Core.Entities;
 using MediaAssetManager.Core.Interfaces;
+using MediaAssetManager.Core.Queries;
 using MediaAssetManager.Infrastructure.Data;
+using MediaAssetManager.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace MediaAssetManager.Infrastructure.Repositories
@@ -80,21 +78,32 @@ namespace MediaAssetManager.Infrastructure.Repositories
         }
 
         /// <inheritdoc/>
-        public async Task<PagedResult<Playlist>> GetByUserIdAsync(int userId, int page = 1, int pageSize = 20)
+        public async Task<PagedResult<Playlist>> GetAsync(PlaylistQuery query, bool includeRelated = false)
         {
-            throw new NotImplementedException();
-        }
+            var queryable = context.Playlists.AsNoTracking();
 
-        /// <inheritdoc/>
-        public async Task<PagedResult<MediaAsset>> GetPlaylistAssetsAsync(int playlistId, int page = 1, int pageSize = 50)
-        {
-            throw new NotImplementedException();
-        }
+            // Only include related entities if explicitly requested
+            if (includeRelated)
+                queryable = IncludeRelatedEntities(queryable);
 
-        /// <inheritdoc/>
-        public Task<PagedResult<Playlist>> GetPublicPlaylistsAsync(int page = 1, int pageSize = 20)
-        {
-            throw new NotImplementedException();
+            // Start with base queryable
+            queryable = queryable
+                .ApplyFilters(query); // Applies WHERE clauses
+
+            // Get total count BEFORE pagination (for PagedResult)
+            var totalCount = await queryable.CountAsync();
+
+            // Apply sorting and pagination, then execute query
+            var items = await queryable
+                .ApplySorting(query) // Applies ORDER BY
+                .ApplyPaging(query) // Applies SKIP/TAKE
+                .ToListAsync();
+
+            return new PagedResult<Playlist>(
+                items,
+                totalCount,
+                query.PageNumber,
+                query.PageSize);
         }
 
         /// <inheritdoc/>
