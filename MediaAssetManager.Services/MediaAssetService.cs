@@ -108,12 +108,5 @@ namespace MediaAssetManager.Services
             // === DELEGATE TO REPOSITORY ===
             return await repository.DeleteAsync(id);
         }
-
-        /// <inheritdoc/>
-        public Task IncrementViewCountAsync(int id)
-        {
-            // Simple pass-through for analytics
-            return repository.IncrementViewCountAsync(id);
-        }
     }
 }

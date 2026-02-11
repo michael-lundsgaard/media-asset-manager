@@ -113,27 +113,12 @@ namespace MediaAssetManager.Infrastructure.Repositories
             return await query.FirstOrDefaultAsync(a => a.ContentHash == contentHash);
         }
 
-        /// <inheritdoc/>
-        public async Task IncrementViewCountAsync(int id)
-        {
-            // Use ExecuteUpdate for efficient server-side update without loading entity
-            await context.MediaAssets
-                .Where(a => a.AssetId == id)
-                .ExecuteUpdateAsync(setters => setters
-                    .SetProperty(a => a.ViewCount, a => a.ViewCount + 1)
-                    .SetProperty(a => a.LastViewedAt, _ => DateTime.UtcNow));
-
-        }
-
         /// <summary>
         /// Applies conditional eager loading of navigation properties based on expand parameter.
         /// Always includes Views collection for ViewCount calculation.
         /// </summary>
         private static IQueryable<MediaAsset> ApplyExpands(IQueryable<MediaAsset> query, HashSet<string>? expand)
         {
-            // Always include Views for count calculation (lightweight, no navigation properties loaded)
-            query = query.Include(a => a.Views);
-
             if (expand == null)
                 return query;
 

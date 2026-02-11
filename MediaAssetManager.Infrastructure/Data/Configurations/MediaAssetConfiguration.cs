@@ -1,5 +1,6 @@
 using MediaAssetManager.Core.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MediaAssetManager.Infrastructure.Data.Configurations
@@ -50,6 +51,12 @@ namespace MediaAssetManager.Infrastructure.Data.Configurations
                 .WithMany(u => u.Assets)
                 .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            // ViewCount is managed by database trigger
+            entity.Property(e => e.ViewCount)
+                .HasDefaultValue(0)
+                .ValueGeneratedOnAddOrUpdate() // Prevent EF Core from trying to update this property
+                .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore); // Ignore changes to ViewCount in EF Core since it's managed by the database
         }
     }
 }

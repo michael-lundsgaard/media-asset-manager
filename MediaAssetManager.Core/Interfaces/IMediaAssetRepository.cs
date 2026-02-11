@@ -51,12 +51,5 @@ namespace MediaAssetManager.Core.Interfaces
         /// <param name="expand">Optional set of navigation properties to eagerly load (e.g., "user", "videoMetadata").</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the media asset if found; otherwise, null.</returns>
         Task<MediaAsset?> GetByContentHashAsync(string contentHash, HashSet<string>? expand = null);
-
-        /// <summary>
-        /// Increments the view count for a media asset.
-        /// </summary>
-        /// <param name="id">The unique identifier of the media asset.</param>
-        /// <returns>A task that represents the asynchronous operation.</returns>
-        Task IncrementViewCountAsync(int id);
     }
 }

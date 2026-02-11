@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using MediaAssetManager.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MediaAssetManager.Infrastructure.Migrations
 {
     [DbContext(typeof(MediaAssetContext))]
-    partial class MediaAssetContextModelSnapshot : ModelSnapshot
+    [Migration("20260211184214_AddViewCountTrigger")]
+    partial class AddViewCountTrigger
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -52,12 +52,5 @@ namespace MediaAssetManager.Services.Interfaces
         /// <returns>A task that represents the asynchronous operation. The task result contains true if deleted; otherwise, false.</returns>
         /// <exception cref="UnauthorizedAccessException">Thrown when user doesn't own the asset.</exception>
         Task<bool> DeleteAsync(int id, int userId);
-
-        /// <summary>
-        /// Increments the view count for a media asset.
-        /// </summary>
-        /// <param name="id">The unique identifier of the asset.</param>
-        /// <returns>A task that represents the asynchronous operation.</returns>
-        Task IncrementViewCountAsync(int id);
     }
 }

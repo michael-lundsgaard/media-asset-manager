@@ -53,7 +53,7 @@ namespace MediaAssetManager.API.Extensions
                 FileSizeBytes = entity.FileSizeBytes,
                 Title = entity.Title,
                 UploadedAt = entity.UploadedAt,
-                ViewCount = entity.Views?.Count ?? 0
+                ViewCount = entity.ViewCount
             };
 
             // Conditionally populate navigation properties based on expand parameter
@@ -116,7 +116,7 @@ namespace MediaAssetManager.API.Extensions
                 Title = entity.Title,
                 FileSizeBytes = entity.FileSizeBytes,
                 UploadedAt = entity.UploadedAt,
-                ViewCount = entity.Views?.Count ?? 0
+                ViewCount = entity.ViewCount
             };
         }
 
