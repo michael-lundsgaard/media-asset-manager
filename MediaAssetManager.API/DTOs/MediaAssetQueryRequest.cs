@@ -1,4 +1,5 @@
-﻿using MediaAssetManager.API.Validation;
+﻿using MediaAssetManager.API.Constants;
+using MediaAssetManager.API.Validation;
 using MediaAssetManager.Core.Queries;
 using System.ComponentModel.DataAnnotations;
 
@@ -31,7 +32,7 @@ namespace MediaAssetManager.API.DTOs
         /// Supported values: "user", "videoMetadata"
         /// Example: ?expand=user,videoMetadata
         /// </summary>
-        [AllowedExpandValues("user", "videoMetadata")]
+        [AllowedExpandValues(MediaAssetExpandOptions.User, MediaAssetExpandOptions.VideoMetadata)]
         public string[]? Expand { get; set; }
     }
 }

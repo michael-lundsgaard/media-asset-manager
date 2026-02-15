@@ -1,7 +1,9 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using MediaAssetManager.API.Configuration;
 using MediaAssetManager.Services.Configuration;
 using Serilog;
+using Swashbuckle.AspNetCore.SwaggerUI;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +29,10 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
         // Don't serialize null values to reduce payload size
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+        // Use camelCase naming convention in JSON
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        // Serialize enums as strings instead of numbers
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
     });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -45,6 +51,24 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "Media Asset Manager API V1");
+    options.RoutePrefix = string.Empty; // Serve Swagger UI at the app's root
+
+    options.DocumentTitle = "Media Asset Manager API Documentation";
+    options.DocExpansion(DocExpansion.List);
+    options.DefaultModelExpandDepth(2);
+    options.DisplayRequestDuration();
+    options.EnableFilter();
+
+    // Enable "Try it out" by default
+    options.EnableTryItOutByDefault();
+
+    // Persist authorization
+    options.EnablePersistAuthorization();
+});
 
 app.UseHttpsRedirection();
 app.MapControllers();

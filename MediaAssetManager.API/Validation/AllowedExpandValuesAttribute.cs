@@ -5,7 +5,7 @@ namespace MediaAssetManager.API.Validation
     /// <summary>
     /// Validation attribute to ensure expand parameter values are from an allowed set.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter, AllowMultiple = false)]
     public class AllowedExpandValuesAttribute : ValidationAttribute
     {
         private readonly HashSet<string> _allowedValues;

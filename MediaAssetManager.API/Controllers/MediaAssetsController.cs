@@ -1,6 +1,8 @@
-﻿using MediaAssetManager.API.DTOs;
+﻿using MediaAssetManager.API.Constants;
+using MediaAssetManager.API.DTOs;
 using MediaAssetManager.API.DTOs.Common;
 using MediaAssetManager.API.Extensions;
+using MediaAssetManager.API.Validation;
 using MediaAssetManager.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -49,7 +51,9 @@ namespace MediaAssetManager.API.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(MediaAssetResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<MediaAssetResponse>> GetById(int id, [FromQuery] string[]? expand = null)
+        public async Task<ActionResult<MediaAssetResponse>> GetById(
+            int id,
+            [FromQuery][AllowedExpandValues(MediaAssetExpandOptions.User, MediaAssetExpandOptions.VideoMetadata)] string[]? expand = null)
         {
             var expandSet = expand?.ToHashSet(StringComparer.OrdinalIgnoreCase);
             var asset = await service.GetByIdAsync(id, expandSet);
